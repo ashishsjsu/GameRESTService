@@ -46,7 +46,6 @@ public class ApplicationController {
 			@RequestParam(value="sponsor", required=false) Integer sponsor_id)
 			{
 				Player player = new Player();
-				Address address = new Address();
 				
 				if(sponsor_id != null)
 				{
@@ -54,28 +53,18 @@ public class ApplicationController {
 					player.setSponsor(sponsor);
 				}
 				
-				if(city != null)
+				if(description != null)
 				{
-					address.setCity(city);
+					player.setDescription(description);
 				}
-				if(state != null)
-				{
-					address.setState(state);
-				}
-				if(street != null)
-				{
-					address.setStreet(street);
-				}
-				if(country != null)
-				{
-					address.setCountry(country);
-				}
-			
+				
+				Address address = updateAddress(street, city, state, zipcode, country);
+				
 				player.setAddress(address);
 				
 				playerDAO.updatePlayer(player, p_id);
 				
-				return null;
+				return player;
 			}
 	
 	//create new player
@@ -95,6 +84,11 @@ public class ApplicationController {
 				Player player = new Player(firstname, lastname, email);
 				Address address = new Address(street, city, state, zipcode);
 				player.setAddress(address);
+				
+				if(description != null)
+				{
+					player.setDescription(description);
+				}
 				
 				if(sponsor_id != null)
 				{
@@ -123,6 +117,7 @@ public class ApplicationController {
     	return "Player deleted : " + player;
     }
 	
+    //get sponsor
     @RequestMapping( method=RequestMethod.GET,value="/sponsor/{id}")
     public @ResponseBody Sponsor getSponsor(@PathVariable(value="id")String p_id) {
     	
@@ -131,7 +126,7 @@ public class ApplicationController {
     	return sponsor;
     }
     
-	
+	//create sponsor
 	@RequestMapping(value="/sponsor", method=RequestMethod.POST)
 	public @ResponseBody Sponsor createSponsor(@RequestParam(value="name", required = true) String name,
 			@RequestParam(value="email", required=false) String email,
@@ -140,20 +135,91 @@ public class ApplicationController {
 			@RequestParam(value="city", required=false) String city,
 			@RequestParam(value="state", required=false) String state,
 			@RequestParam(value="zipcode", required=false) String zipcode)
-	{
+		{
 	
 			Sponsor sponsor = new Sponsor(name);
 			Address address= new Address(street,city,state,zipcode);
 			sponsor.setAddress(address);
 		    sponsor.setDescription(description);
-		    
+		    sponsor.setEmail(email);
 		    sponsorDAO.createSponsor(sponsor);
 			System.out.println("Sponsor : " + sponsor+"id="+sponsor.getId());  		  
 		    return sponsor;
-	}
+		}
 	
 	
+	//update sponsor
+	  @RequestMapping(method=RequestMethod.PUT,value="/sponsor/{id}")
+	    public @ResponseBody Sponsor updateSponsor(@PathVariable(value="id")Integer sp_id,
+	    		@RequestParam(value="name", required=true)String newname,
+	    		@RequestParam(value="email", required=true)String email,
+	    		@RequestParam(value="desc", required=false)String desc,
+	    		@RequestParam(value="street", required=false) String street,
+	    		@RequestParam(value="city", required=false) String city,
+	    		@RequestParam(value="state", required=false) String state,
+	    		@RequestParam(value="zipcode", required=false) String zipcode,
+	    		@RequestParam(value="zipcode", required=false) String country)
+	  {	
+		  Sponsor sponsor = new Sponsor();
+		  
+		  Address address = updateAddress(street, city, state, zipcode, country);
+		  
+		  sponsor.setAddress(address);
+		  
+		  if(newname != null)
+		  {
+			  sponsor.setName(newname);
+		  }
+		  if(desc != null)
+		  {
+			  sponsor.setDescription(desc);
+		  }
+		  
+		  sponsorDAO.updateSponsor(sponsor, sp_id);
+		  
+		  return sponsor;
+	  }
 	
+	  
+	//delete sponsor
+	    @RequestMapping(method=RequestMethod.DELETE,value="/sponsor/{id}")
+	    public @ResponseBody String deleteSponsor(@PathVariable(value="id")Integer p_id){
+	    	
+	    	Sponsor sponsor = sponsorDAO.deleteSponsor(p_id);
+	    	return "Player deleted : " + sponsor;
+	    }
+		
+	  
+	  /*========== HELPER METHODS ===================*/
+	
+	  public Address updateAddress(String street, String city, String state, String zipcode, String country)
+	  {
+		  Address address = new Address();
+		  
+			if(city != null)
+			{
+				address.setCity(city);
+			}
+			if(state != null)
+			{
+				address.setState(state);
+			}
+			if(street != null)
+			{
+				address.setStreet(street);
+			}
+			if(country != null)
+			{
+				address.setCountry(country);
+			}
+			if(zipcode !=  null)
+			{
+				address.setZipcode(zipcode);
+			}
+		
+			return address;
+	  }
+	  
 	
 	public void isValidSponsor(String name)
 	{

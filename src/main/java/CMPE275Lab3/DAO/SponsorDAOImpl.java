@@ -28,6 +28,12 @@ public class SponsorDAOImpl implements SponsorDAO {
 	
 	@Override
 	public void createSponsor(Sponsor sponsor) {
+	
+		while(isExistingSponsor(sponsor.getId()))
+		{
+			sponsor.setId(sponsor.getId() + 1);
+
+		}
 		
 		mongoOps.insert(sponsor, SPONSOR_COLLECTION);
 	}
@@ -47,7 +53,7 @@ public class SponsorDAOImpl implements SponsorDAO {
 	}
 
 	@Override
-	public Sponsor updateSponsor(Sponsor sponsor, Integer sp_id) {
+	public void updateSponsor(Sponsor sponsor, Integer sp_id) {
 
 		if(!isExistingSponsor(sp_id))
 		{
@@ -81,15 +87,31 @@ public class SponsorDAOImpl implements SponsorDAO {
 		
 		
 		mongoOps.findAndModify(query, update, Sponsor.class, SPONSOR_COLLECTION);
-		Sponsor updatedSponsor = mongoOps.findOne(query, Sponsor.class, SPONSOR_COLLECTION);
-		
-		return updatedSponsor;
+		mongoOps.findOne(query, Sponsor.class, SPONSOR_COLLECTION);
 		
 	}
 	
+	@Override
+	public Sponsor deleteSponsor(Integer s_id) {
+	
+		Query query = new Query(Criteria.where("id").is(s_id));
+		Sponsor sponsor = mongoOps.findOne(query, Sponsor.class, SPONSOR_COLLECTION);
+		
+		if(sponsor == null)
+		{
+			throw new MyExceptions.UserNotFoundException();
+		}
+		
+		mongoOps.remove(query, Sponsor.class, SPONSOR_COLLECTION);
+		
+		return sponsor;
+	}
+
+	
 	public boolean isExistingSponsor(Integer sp_id)
 	{
-		Sponsor existingsponsor = findById(sp_id);
+		Query query = new Query(Criteria.where("id").is(sp_id));
+		Sponsor existingsponsor = mongoOps.findOne(query, Sponsor.class, SPONSOR_COLLECTION);
 		
 		if(existingsponsor != null)
 		{

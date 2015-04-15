@@ -8,13 +8,17 @@ public class Sponsor {
 
 	private static int counter;
 	
-	private long id;
+	private Integer id;
 	private String name;
 	private String email;
 	private String description;
 	private Address address;
 	
 
+	public Sponsor()
+	{
+		
+	}
 	
 	public Sponsor(String name) {
 		super();
@@ -25,13 +29,13 @@ public class Sponsor {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public Integer getId() {
 		return id;
 	}
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	/**

@@ -48,9 +48,15 @@ public class PlayerDAOImpl implements PlayerDAO {
 
 	@Override
 	public Player getById(Integer p_id) {
+		
 		Query query = new Query(Criteria.where("id").is(p_id));
 		Player player = mongoOps.findOne(query, Player.class, Player_COLLECTION);
 
+		if(player==null)
+		{
+			throw new MyExceptions.UserNotFoundException();
+		}
+		
 		return player;
 	}
 
@@ -123,8 +129,9 @@ public class PlayerDAOImpl implements PlayerDAO {
 /*========== HELPER FUNCTIONS ==========*/	
 	public boolean isExistingPlayer(Integer id)
 	{
-		Player existingplayer = getById(id);
-		
+		Query query = new Query(Criteria.where("id").is(id));
+		Player existingplayer = mongoOps.findOne(query, Player.class, Player_COLLECTION);
+
 		if(existingplayer != null)
 		{
 			return true;
@@ -141,10 +148,10 @@ public class PlayerDAOImpl implements PlayerDAO {
 		
 		if(player!=null)
 		{
-			return false;
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 
 	
